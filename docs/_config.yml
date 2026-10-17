@@ -1,0 +1,15 @@
+title: AI4SH Backbone
+description: Architecture and repeatable extension recipes
+# Replace these two values before publishing a project repository.
+url: "https://persiansushiant.github.io"
+baseurl: "/AI4sh_redesigned"
+markdown: kramdown
+highlighter: rouge
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - vendor
+  - README.md

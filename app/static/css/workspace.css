@@ -1,0 +1,271 @@
+/* Shared workspace styles, layout, loading overlay, traces, and scoped import cards. Rule order is intentional: later import rules override earlier declarations. Existing duplicate blocks are preserved; this pass adds comments only. */
+*{box-sizing:border-box} :root{--nav:#101a2e;--blue:#285fed;--bg:#f3f5f9;--text:#142039;--muted:#65748b;--border:#dce3ee}body{margin:0;font-family:Segoe UI,Arial,sans-serif;color:var(--text);background:var(--bg)}button,input,textarea{font:inherit}button{cursor:pointer;border:0;border-radius:9px;padding:11px 16px;background:var(--blue);color:white}button:disabled{cursor:not-allowed;opacity:.45}button:focus-visible,input:focus-visible,textarea:focus-visible,[role=separator]:focus-visible{outline:3px solid #82adff;outline-offset:3px}#application{height:100vh;display:flex}aside{width:245px;background:var(--nav);color:white;padding:32px 22px;display:flex;flex-direction:column;flex-shrink:0}.brand{display:flex;gap:12px;align-items:center;font-weight:700;font-size:25px}.logo{background:var(--blue);padding:10px;border-radius:13px}.sub{display:block;font-size:12px;font-weight:400;color:#9baecc;margin-top:5px}.eyebrow{font-size:11px;font-weight:700;letter-spacing:2px;color:var(--blue);margin-top:22px}aside .eyebrow{color:#92a4c1;margin-top:48px}nav{display:grid;gap:8px}nav button{text-align:left;background:transparent;color:#ccdaef;display:flex;gap:12px}nav button.active{background:#26354e;color:white}aside footer{margin-top:auto;color:#8295b5;font-size:12px;line-height:1.8}.workspace{flex:1;min-width:0;display:flex;flex-direction:column}header{height:65px;flex-shrink:0;padding:0 32px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:white;color:var(--muted);font-size:13px}header button,.statusbar button{background:transparent;color:var(--muted);padding:6px}main{flex:1;min-height:0;overflow:auto;padding:38px 48px}h1{font-size:clamp(28px,3vw,44px);letter-spacing:-1px;margin:12px 0 16px}h2{font-size:20px}.lead{color:var(--muted);max-width:680px;line-height:1.7;margin-bottom:30px}article{background:white;padding:28px;border:1px solid var(--border);border-radius:16px}article p{color:var(--muted);line-height:1.6}.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.badge{color:var(--blue);font-size:13px;font-weight:700}.note{margin-top:28px;color:var(--muted);font-size:12px}label{display:block;margin:12px 0}input,textarea{display:block;width:100%;max-width:520px;border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:18px}textarea{min-height:140px}.secondary{background:#eaf0fc;color:var(--blue)}.actions{display:flex;gap:10px;flex-wrap:wrap}#bottomPanel{height:220px;min-height:90px;max-height:65vh;background:#111c2f;color:#c6d5ec;flex-shrink:0;position:relative;display:flex;flex-direction:column}#bottomPanel[hidden]{display:none}#resizeHandle{height:8px;cursor:ns-resize;background:#263953;touch-action:none;flex-shrink:0}.panelHeading{display:flex;justify-content:space-between;padding:7px 18px;align-items:center;font-size:12px}.panelHeading button{background:transparent;padding:2px 8px}#logContent{overflow:auto;flex:1;padding:0 18px 14px;font:12px/1.9 Consolas,monospace}.log-row{white-space:pre-wrap;overflow-wrap:anywhere}.statusbar{height:30px;flex-shrink:0;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 16px;font-size:11px}#progressOverlay{position:fixed;inset:0;z-index:100;background:#0b162bc9;display:grid;place-items:center}#progressOverlay[hidden]{display:none}.progressCard{background:white;padding:36px;width:min(440px,90vw);border-radius:20px;text-align:center}small{color:var(--muted)}@media(max-width:850px){aside{width:185px;padding:24px 12px}main{padding:24px}.cards{grid-template-columns:1fr}}
+nav svg{flex-shrink:0;color:currentColor}.loading-spinner{width:48px;height:48px;border:4px solid #e3eafa;border-top-color:var(--blue);border-radius:50%;margin:24px auto;animation:loading-spin .8s linear infinite}@keyframes loading-spin{to{transform:rotate(360deg)}}@media(prefers-reduced-motion:reduce){.loading-spinner{animation-duration:2s}}
+
+#bottomNavigation{display:flex;gap:6px;overflow:auto}#bottomNavigation button{display:flex;align-items:center;gap:7px;border-radius:5px;color:#adbedb;background:transparent;padding:6px 10px;white-space:nowrap}#bottomNavigation button.active{background:#2c4161;color:white}#bottomNavigation svg{flex-shrink:0}.summary-panel{font:14px/1.6 Segoe UI,Arial,sans-serif}.summary-panel h3{margin:8px 0}.summary-panel dl{display:grid;grid-template-columns:100px 1fr;gap:4px}.summary-panel dd{margin:0;color:white}
+
+/* Shared motion tokens for every activity and workspace control. */
+/* Shared short motion durations and easing, reused by workspace controls. */
+:root {
+  --motion-fast: 140ms;
+  --motion-normal: 200ms;
+  --motion-ease: cubic-bezier(.2, .8, .2, 1);
+}
+button {
+  transition: background-color var(--motion-fast) var(--motion-ease),
+              color var(--motion-fast) var(--motion-ease),
+              box-shadow var(--motion-fast) var(--motion-ease),
+              transform var(--motion-fast) var(--motion-ease);
+}
+input, textarea {
+  transition: border-color var(--motion-fast) var(--motion-ease),
+              box-shadow var(--motion-fast) var(--motion-ease);
+}
+input:focus, textarea:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px #285fed12;
+}
+#resizeHandle {
+  transition: background-color var(--motion-fast) var(--motion-ease);
+}
+#resizeHandle:hover { background-color: #3a5274; }
+@media (hover: hover) and (pointer: fine) {
+  button:not(:disabled):hover { box-shadow: 0 2px 8px #14203912; }
+  main button:not(:disabled):hover { transform: translateY(-1px); }
+  #navigation button:not(:disabled):hover {
+    background-color: #22334d;
+    transform: translateX(2px);
+    box-shadow: none;
+  }
+  #navigation button.active:hover { background-color: #304361; }
+  #bottomNavigation button:not(:disabled):hover {
+    background-color: #263c59;
+    box-shadow: none;
+  }
+  #bottomNavigation button.active:hover { background-color: #344f72; }
+  header button:hover, .statusbar button:hover { background-color: #eaf0fc; }
+}
+button:not(:disabled):active { transform: translateY(1px); }
+#navigation button:not(:disabled):active { transform: translateX(1px); }
+main > *, #logContent > :first-child {
+  animation: workspace-content-enter var(--motion-normal) var(--motion-ease);
+}
+#bottomPanel:not([hidden]) {
+  animation: workspace-panel-enter var(--motion-normal) var(--motion-ease);
+}
+#progressOverlay:not([hidden]) {
+  animation: workspace-fade-enter var(--motion-fast) var(--motion-ease);
+}
+#progressOverlay:not([hidden]) .progressCard {
+  animation: workspace-content-enter var(--motion-normal) var(--motion-ease);
+}
+@keyframes workspace-content-enter {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes workspace-panel-enter {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes workspace-fade-enter {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+  button:not(:disabled):hover, button:not(:disabled):active {
+    transform: none !important;
+  }
+}
+
+/* Trace styles use status-specific colors and independently scrolling log content. */
+/* Compact structured trace controls and status indicators. */
+.trace-toolbar{position:sticky;top:0;background:#111c2f;z-index:1;display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #2b3a52;font:12px Segoe UI,Arial,sans-serif;flex-wrap:wrap}.trace-toolbar label{margin:0;color:#9eafc8}.trace-toolbar select{background:#1e2e46;color:#e1eaf7;border:1px solid #334863;border-radius:6px;padding:5px 8px;font:inherit;transition:border-color var(--motion-fast) var(--motion-ease)}.trace-toolbar select:focus-visible{outline:2px solid #82adff;outline-offset:2px}.trace-count{margin-left:auto;color:#91a4c0}.trace-row{display:grid;grid-template-columns:18px 78px 82px 58px minmax(0,1fr);gap:8px;align-items:start;padding:5px 0;border-bottom:1px solid #223149;font:12px/1.6 Consolas,monospace}.trace-indicator{display:flex;padding-top:2px}.trace-row time{color:#869bb9}.trace-section{color:#b6c8e2}.trace-status{text-transform:capitalize;font-size:11px}.trace-message{white-space:pre-wrap;overflow-wrap:anywhere;color:#d6e1f1}.trace-info .trace-indicator,.trace-info .trace-status{color:#8ebaff}.trace-success .trace-indicator,.trace-success .trace-status{color:#6cdea8}.trace-warning .trace-indicator,.trace-warning .trace-status{color:#f3c770}.trace-error .trace-indicator,.trace-error .trace-status{color:#ff929d}.trace-empty{padding:16px 0;color:#8ca1bf;font:12px Segoe UI,Arial,sans-serif}@media(max-width:650px){.trace-row{grid-template-columns:18px 65px 65px minmax(0,1fr)}.trace-status{display:none}}
+
+/* Import card styles are scoped to this activity so other views retain shared styling. */
+/* Append this scoped block to app/static/css/workspace.css. */
+.import-data-activity .import-data-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  gap: 16px;
+}
+.import-data-activity section { margin-block: 28px; }
+.import-data-activity .import-data-card {
+  border: 1px solid #dce3ed; border-radius: 14px; padding: 20px;
+  background: #fff;
+  transition: border-color 140ms cubic-bezier(.2,.8,.2,1), box-shadow 200ms cubic-bezier(.2,.8,.2,1);
+}
+.import-data-activity .import-data-card:hover,
+.import-data-activity .import-data-card:focus-within {
+  border-color: #839abb; box-shadow: 0 4px 14px #18375c0d;
+}
+.import-data-activity .import-data-action {
+  display: flex; align-items: center; gap: 12px; width: 100%;
+  background: transparent; color: #16324f; border: 0; padding: 0;
+  text-align: left; cursor: pointer;
+}
+.import-data-activity .import-data-action[aria-disabled="true"] { cursor: not-allowed; color: #6c7787; }
+.import-data-activity .import-data-icon {
+  display: grid; place-items: center; width: 48px; height: 48px;
+  flex-shrink: 0; border-radius: 12px; background: #edf3fb;
+  transition: background-color 140ms cubic-bezier(.2,.8,.2,1);
+}
+/* Import card styles are scoped to this activity so other views retain shared styling. */
+/* Append this scoped block to app/static/css/workspace.css. */
+.import-data-activity .import-data-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  gap: 16px;
+}
+.import-data-activity section { margin-block: 28px; }
+.import-data-activity .import-data-card {
+  border: 1px solid #dce3ed; border-radius: 14px; padding: 20px;
+  background: #fff;
+  transition: border-color 140ms cubic-bezier(.2,.8,.2,1), box-shadow 200ms cubic-bezier(.2,.8,.2,1);
+}
+.import-data-activity .import-data-card:hover,
+.import-data-activity .import-data-card:focus-within {
+  border-color: #839abb; box-shadow: 0 4px 14px #18375c0d;
+}
+.import-data-activity .import-data-action {
+  display: flex; align-items: center; gap: 12px; width: 100%;
+  background: transparent; color: #16324f; border: 0; padding: 0;
+  text-align: left; cursor: pointer;
+}
+.import-data-activity .import-data-action[aria-disabled="true"] { cursor: not-allowed; color: #6c7787; }
+.import-data-activity .import-data-icon {
+  display: grid; place-items: center; width: 48px; height: 48px;
+  flex-shrink: 0; border-radius: 12px; background: var(--import-icon-bg, #edf3fb); color: var(--import-icon-color, #2456a6);
+  transition: background-color 140ms cubic-bezier(.2,.8,.2,1);
+}
+.import-data-activity .import-data-card:hover .import-data-icon,
+.import-data-activity .import-data-card:focus-within .import-data-icon { background: var(--import-icon-hover, #dce8f8); }
+.import-data-activity .import-data-icon svg { width: 24px; height: 24px; }
+.import-data-activity .import-data-title { font-weight: 600; }
+.import-data-activity .import-data-status { font-size: .85rem; color: #5e6c7b; }
+.import-data-activity .import-data-action:focus-visible { outline: 2px solid #507fae; outline-offset: 5px; }
+@media (prefers-reduced-motion: reduce) {
+  .import-data-activity .import-data-card,
+  .import-data-activity .import-data-icon { transition: none; }
+}
+/* data-locked is set from server permissions; locked cards retain neutral hover and focus feedback. */
+/* Locked cards use neutral icon colors. */
+.import-data-activity .import-data-card[data-locked="true"] {
+  --import-icon-color: #94a3b8;
+  --import-icon-bg: #f1f5f9;
+  --import-icon-hover: #e2e8f0;
+}
+
+/* Smooth card and icon motion. */
+.import-data-activity .import-data-card {
+  transition:
+    transform 200ms cubic-bezier(.2, .8, .2, 1),
+    box-shadow 200ms cubic-bezier(.2, .8, .2, 1),
+    border-color 140ms cubic-bezier(.2, .8, .2, 1);
+}
+
+.import-data-activity .import-data-icon {
+  color: var(--import-icon-color);
+  background: var(--import-icon-bg);
+
+  transition:
+    transform 200ms cubic-bezier(.2, .8, .2, 1),
+    color 200ms cubic-bezier(.2, .8, .2, 1),
+    background-color 200ms cubic-bezier(.2, .8, .2, 1);
+}
+
+/* Enabled cards lift slightly on hover or keyboard focus. */
+.import-data-activity .import-data-card[data-locked="false"]:hover,
+.import-data-activity .import-data-card[data-locked="false"]:focus-within {
+  transform: translateY(-3px);
+  border-color: var(--import-icon-color);
+  box-shadow: 0 8px 20px #18375c14;
+}
+
+.import-data-activity .import-data-card[data-locked="false"]:hover .import-data-icon,
+.import-data-activity .import-data-card[data-locked="false"]:focus-within .import-data-icon {
+  transform: translateY(-2px) rotate(-4deg);
+}
+
+/* Locked cards keep a subtle, neutral hover effect. */
+.import-data-activity .import-data-card[data-locked="true"]:hover,
+.import-data-activity .import-data-card[data-locked="true"]:focus-within {
+  transform: none;
+  border-color: #cbd5e1;
+  box-shadow: 0 2px 8px #18375c08;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .import-data-activity .import-data-card,
+  .import-data-activity .import-data-icon {
+    transition: none;
+    transform: none !important;
+  }
+}
+
+/* Action-specific color variables belong to the clickable button, inherited by its icon. */
+/* Each action's enabled color. */
+.import-data-action[data-import-action="create_database"],
+.import-data-action[data-import-action="utility_data"] {
+  --action-color: #2563eb;
+  --action-background: #dbeafe;
+}
+
+.import-data-action[data-import-action="setup_processes"],
+.import-data-action[data-import-action="dataset_metadata"] {
+  --action-color: #15803d;
+  --action-background: #dcfce7;
+}
+
+.import-data-action[data-import-action="delete_database"] {
+  --action-color: #dc2626;
+  --action-background: #fee2e2;
+}
+
+.import-data-action[data-import-action="sample_data"] {
+  --action-color: #c2410c;
+  --action-background: #ffedd5;
+}
+
+.import-data-action[data-import-action="wetlab_data"] {
+  --action-color: #7e22ce;
+  --action-background: #f3e8ff;
+}
+
+.import-data-action[data-import-action="spectral_data"] {
+  --action-color: #0e7490;
+  --action-background: #cffafe;
+}
+
+.import-data-action[data-import-action="all_data"] {
+  --action-color: #4338ca;
+  --action-background: #e0e7ff;
+}
+
+/* These later important declarations override earlier card icon colors using the button state. */
+/* Enabled icons are colored. */
+.import-data-activity .import-data-action[aria-disabled="false"] .import-data-icon {
+  color: var(--action-color) !important;
+  background: var(--action-background) !important;
+}
+
+/* aria-disabled is the source of truth for final gray icon styling, even during hover. */
+/* Locked icons stay gray, including on hover. */
+.import-data-activity .import-data-action[aria-disabled="true"] .import-data-icon {
+  color: #94a3b8 !important;
+  background: #f1f5f9 !important;
+}
+
+.import-data-activity .import-data-icon svg,
+.import-data-activity .import-data-icon svg path {
+  stroke: currentColor !important;
+}
+
+/* Keep the selected bottom activity readable above the loading backdrop.
+   Existing loading interaction locks and the user's panel height are preserved. */
+#bottomPanel:not([hidden]) {
+  z-index: 101;
+}

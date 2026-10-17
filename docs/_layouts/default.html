@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{{ page.title | escape }} · {{ site.title | escape }}</title>
+  <meta name="description" content="{{ site.description | escape }}">
+  <link rel="stylesheet" href="{{ '/assets/css/docs.css' | relative_url }}">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <aside>
+    <a class="brand" href="{{ '/' | relative_url }}">AI4SH<span>Backbone documentation</span></a>
+    <nav aria-label="Documentation">
+      {% for item in site.data.navigation %}
+      <a href="{{ item.url | relative_url }}" {% if page.url == item.url %}aria-current="page"{% endif %}>{{ item.title | escape }}</a>
+      {% endfor %}
+    </nav>
+    <p class="snapshot">Source snapshot: 8 October 2026</p>
+  </aside>
+  <main id="main" tabindex="-1">{{ content }}</main>
+</body>
+</html>

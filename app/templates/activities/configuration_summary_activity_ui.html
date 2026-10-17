@@ -1,0 +1,15 @@
+<!-- Configuration form. Field names must match the Python payload and browser restore loop. The password is visually masked; masking does not encrypt the browser field. -->
+<p class="eyebrow">CONFIGURATION</p>
+<h1>Database configuration</h1>
+<article>
+  <form id="configurationSummaryForm">
+    <label for="configurationDatabaseName">Database name</label>
+    <input id="configurationDatabaseName" name="database_name" type="text" required>
+    <label for="configurationUsername">Database username</label>
+    <input id="configurationUsername" name="username" type="text" autocomplete="username" required>
+    <label for="configurationPassword">Password</label>
+    <input id="configurationPassword" name="password" type="password" minlength="6" autocomplete="current-password" required>
+    <button type="submit">Save configuration</button>
+  </form>
+  <p id="configurationSummaryResult" role="status" aria-live="polite"></p>
+</article>
