@@ -1,14 +1,30 @@
 ---
 layout: default
-title: "Start here"
+title: Home
+nav_order: 1
 ---
 
-# Start here
+# A clear foundation.
+One guide to build on.
 
 
 This documentation describes the supplied AI4SH backbone source snapshot, dated **8 October 2026**. Later source changes take precedence over this guide.
 
 The application is a local, single-user Flask workspace. Python owns validation and operations; the browser owns interaction; shared services own navigation, loading, persistence and tracing.
+
+<div class="hero">
+<div class="badge">THE AI4SH APPLICATION BACKBONE</div>
+<h2>From first run to your next feature.</h2>
+<p>Understand the architecture, follow the extension recipes, and keep every new feature consistent.</p>
+<a href="getting-started.html">Get started →</a><a class="secondary" href="architecture.html">Explore the architecture ↗</a>
+</div>
+
+<div class="cards">
+<a class="card" href="activities.html"><span class="number">01 / BUILD</span><b>Add an activity →</b><small>Python, templates and browser lifecycle.</small></a>
+<a class="card" href="menus.html"><span class="number">02 / CONNECT</span><b>Menus & panels →</b><small>Navigation and the shared bottom panel.</small></a>
+<a class="card" href="persistence.html"><span class="number">03 / REMEMBER</span><b>Settings & state →</b><small>Configuration, flags and persistence.</small></a>
+<a class="card" href="validation.html"><span class="number">04 / VERIFY</span><b>Validate a change →</b><small>Checks and troubleshooting recipes.</small></a>
+</div>
 
 ## Choose a path
 
