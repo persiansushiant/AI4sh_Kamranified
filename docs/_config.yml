@@ -1,14 +1,28 @@
 title: AI4SH Backbone
 description: Architecture and repeatable extension recipes
-# Replace these two values before publishing a project repository.
+
 url: "https://persiansushiant.github.io"
 baseurl: "/AI4sh_kamranified"
-theme: jekyll-theme-cayman
+
+remote_theme: just-the-docs/just-the-docs
+
+plugins:
+  - jekyll-remote-theme
+
+color_scheme: light
+search_enabled: true
+
+heading_anchors: true
+back_to_top: true
+back_to_top_text: "Back to top"
+
 markdown: kramdown
 highlighter: rouge
+
 kramdown:
   input: GFM
   syntax_highlighter: rouge
+
 exclude:
   - Gemfile
   - Gemfile.lock
