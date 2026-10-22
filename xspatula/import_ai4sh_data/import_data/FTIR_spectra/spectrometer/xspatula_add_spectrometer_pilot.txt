@@ -1,0 +1,5 @@
+############################################
+##### XSPATULA ADD SPECTROMETER #####
+############################################
+bruker-invenio-s-ftir_au_spectrometer.json
+bruker-invenio-s-ftir_spectrometer.json

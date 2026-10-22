@@ -2,3 +2,4 @@ Flask>=3.0,<4
 pytest>=8,<10
 SQLAlchemy>=2.0,<3
 cryptography>=43,<47
+papermill==2.7.0

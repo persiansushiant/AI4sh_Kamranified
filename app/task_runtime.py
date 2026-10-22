@@ -5,6 +5,7 @@ from collections import deque
 from datetime import datetime, timezone
 from uuid import uuid4
 from .services.workspace_context import bind, unbind
+from .services.log_bridge import LogBridge
 from .services.progress_bar import ProgressBar
 from .models.trace_entry import TraceEntry, TraceSection, TraceStatus
 
@@ -21,6 +22,11 @@ class Runtime:
         self.commands = deque(maxlen=100)
         self.command_sequence = 0
         self.progress_state = dict(active=False, text="")
+        self.log_bridge = LogBridge(self)
+
+    def close(self):
+        """Stop the notebook log receiver when disposing of the runtime."""
+        self.log_bridge.close()
 
     # Assign monotonically increasing command IDs so the browser can ignore already processed entries.
     def command(self, kind, value=None):

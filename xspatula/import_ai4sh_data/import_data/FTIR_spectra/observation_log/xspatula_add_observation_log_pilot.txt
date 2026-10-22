@@ -1,0 +1,17 @@
+############################################
+##### XSPATULA ADD OBSERVATION_LOG #####
+############################################
+ai4sh_ch_lens_2026@ftir_ds2m_observation_log.json
+ai4sh_dk_foulum_2026@ftir_ds2m_observation_log.json
+ai4sh_es_arkaute_2026-2024@ftir_ds2m_observation_log.json
+ai4sh_es_arkaute_2026-2025@ftir_ds2m_observation_log.json
+ai4sh_fi_jokioinen_2026@ftir_ds2m_observation_log.json
+ai4sh_fr_estrees-mons_2026@ftir_ds2m_observation_log.json
+ai4sh_gr_ktima-gerovassiliou_2026@ftir_ds2m_observation_log.json
+ai4sh_gr_zazari_2026@ftir_ds2m_observation_log.json
+ai4sh_hr_neretva_2026-2024@ftir_ds2m_observation_log.json
+ai4sh_hr_neretva_2026-2025@ftir_ds2m_observation_log.json
+ai4sh_nl_boermarke-zeijen_2026@ftir_ds2m_observation_log.json
+ai4sh_se_loennstorp_2026@ftir_ds2m_observation_log.json
+ai4sh_gb-eng_woodoaks_2026@ftir_ds2m_observation_log.json
+ai4sh_gb-wls_plynlimon_2026@ftir_ds2m_observation_log.json
