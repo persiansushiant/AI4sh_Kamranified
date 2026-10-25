@@ -42,10 +42,14 @@ def set_import_data_mode(mode):
 def get_import_data_state():
     mode = get_import_data_mode()
     allowed = IMPORT_DATA_MODE_ACTIONS[mode]
+    statuses = Store.get("import_data.actions", {})
     return {
         "mode": int(mode),
         "mode_name": mode.name.replace("_", " ").title(),
-        "actions": [dict(action, enabled=action["id"] in allowed,
+        "actions": [dict(action, status=Store.get(
+                         "import_data." + action["id"] + ".status",
+                         statuses.get(action["id"], {}).get("status", "not_started")),
+                         enabled=action["id"] in allowed,
                          reason="" if action["id"] in allowed else "Unavailable in the current import mode.")
                     for action in ACTION_DEFINITIONS],
     }
@@ -65,12 +69,30 @@ def require_import_data_action(action_id):
 def complete_import_data_action(action_id):
     """Call only after the real action finishes successfully."""
     require_import_data_action(action_id)
+    mode = get_import_data_mode()
+    statuses = Store.get("import_data.actions", {})
     if action_id == "create_database":
-        set_import_data_mode(ImportDataMode.DATABASE_READY)
-    # Repeated successful setup never downgrades a later compatible stage.
+        mode = ImportDataMode.DATABASE_READY
+        statuses = {}
     elif action_id == "setup_processes":
-        set_import_data_mode(max(get_import_data_mode(), ImportDataMode.PROCESSES_READY))
-    # Successful deletion returns action availability to the initial state.
+        mode = max(mode, ImportDataMode.PROCESSES_READY)
     elif action_id == "delete_database":
-        set_import_data_mode(ImportDataMode.INITIAL)
+        mode = ImportDataMode.INITIAL
+        statuses = {}
+    from datetime import datetime, timezone
+    statuses[action_id] = {"status": "succeeded", "updated_at": datetime.now(timezone.utc).isoformat()}
+    Store.set_many({MODE_KEY: int(mode), "import_data.actions": statuses})
     return get_import_data_state()
+
+
+def record_action_status(action_id, status):
+    from datetime import datetime, timezone
+    statuses = Store.get("import_data.actions", {})
+    statuses[action_id] = {"status": status, "updated_at": datetime.now(timezone.utc).isoformat()}
+    Store.set("import_data.actions", statuses)
+
+
+def recover_interrupted_actions():
+    # An independently running notebook may still be active when the UI opens.
+    # Status values belong to notebook code; startup must not rewrite them.
+    return None

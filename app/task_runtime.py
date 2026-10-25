@@ -60,13 +60,13 @@ class Runtime:
             activity.on_start()
             result = activity.run(payload)
         except Exception as exc:
-            status, result = "failed", {"message": str(exc)}
+            status, result = "failed", getattr(exc, "result", {"message": str(exc)})
             self.log(f"ERROR: {exc}", "job", "error")
         finally:
             try:
                 activity.on_end()
             except Exception as exc:
-                status, result = "failed", {"message": str(exc)}
+                status, result = "failed", getattr(exc, "result", {"message": str(exc)})
                 self.log(f"ERROR in on_end: {exc}", "job", "error")
             # Safety net: even a forgotten end() or exception unlocks the app.
             ProgressBar.end()

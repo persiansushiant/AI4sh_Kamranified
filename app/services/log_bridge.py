@@ -54,7 +54,7 @@ class NotebookServices:
     """Only log is available outside a bound workspace context."""
 
     def log(self, message, section="process", status="info"):
-        payload = dict(message=str(message), section=str(section), status=str(status))
+        payload = dict(message=str(message), section=getattr(section, "value", str(section)), status=getattr(status, "value", str(status)))
         try:
             if _request(_endpoint(), payload):
                 return

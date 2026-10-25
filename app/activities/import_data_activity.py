@@ -1,9 +1,9 @@
 # Import action dispatcher. The controls service owns import-mode permissions
 # and transitions; individual handlers below are extension points for real operations.
 from .activity_base import Activity
-from ..services.import_data_controls import get_import_data_state, require_import_data_action, complete_import_data_action
+from ..services.import_data_controls import get_import_data_state, require_import_data_action
 from ..services.execution_trace import Trace
-import time
+from ..services.notebook_runner import run_notebook
 from ..services.progress_bar import ProgressBar
 
 class ImportDataActivity(Activity):
@@ -47,64 +47,58 @@ class ImportDataActivity(Activity):
         return {"implemented": False, "message": "This action has not been implemented yet.",
                 "state": get_import_data_state()}
 
-    # Extension point: create the configured database. Do not advance on failure.
-    def import_data_activity_create_database(self, payload):
-        # Start progress and automatically reveal the Log activity.
-        ProgressBar.start("Creating database...")
-
+    def _run_notebook_action(self, action_id, text):
+        ProgressBar.start(text)
         try:
-            # Simulate an operation so progress remains visible for three seconds.
-            time.sleep(3)
-
-            return self.import_data_activity_placeholder("create_database")
+            run_notebook(action_id, interactive=True)
+            return self.import_data_activity_success(action_id, "Notebook completed successfully.")
+        except Exception as exc:
+            import traceback
+            traceback.print_exc()
+            # Runtime marks the job failed; return current card state in its result.
+            error = RuntimeError("Execution failed. Please check the log.")
+            error.result = {"message": str(error), "state": get_import_data_state()}
+            raise error from None
         finally:
-            # Stop progress while keeping the Log panel open.
             ProgressBar.end()
 
-    # Extension point: register process definitions after database creation succeeds.
-    def import_data_activity_setup_processes(self, payload):
-        # Add this action's implementation here. Change mode only after success.
-        return self.import_data_activity_placeholder("setup_processes")
+    def import_data_activity_create_database(self, payload):
+        return self._run_notebook_action("create_database", "Creating database…")
 
-    # Extension point: delete configured content; report completion only after actual deletion.
+    def import_data_activity_setup_processes(self, payload):
+        return self._run_notebook_action("setup_processes", "Setting up processes…")
+
     def import_data_activity_delete_database(self, payload):
-        # Add this action's implementation here. Change mode only after success.
-        return self.import_data_activity_placeholder("delete_database")
+        return self._run_notebook_action("delete_database", "Deleting database…")
 
     # Extension point: load utility and lookup records.
     def import_data_activity_utility_data(self, payload):
-        # Add this action's implementation here. Change mode only after success.
-        return self.import_data_activity_placeholder("utility_data")
+        return self._run_notebook_action("utility_data", "Loading utility data…")
 
     # Extension point: load dataset descriptions and identifiers.
     def import_data_activity_dataset_metadata(self, payload):
-        # Add this action's implementation here. Change mode only after success.
-        return self.import_data_activity_placeholder("dataset_metadata")
+        return self._run_notebook_action("dataset_metadata", "Loading dataset metadata…")
 
     # Extension point: load sample records and related project data.
     def import_data_activity_sample_data(self, payload):
-        # Add this action's implementation here. Change mode only after success.
-        return self.import_data_activity_placeholder("sample_data")
+        return self._run_notebook_action("sample_data", "Loading sample data…")
 
     # Extension point: load laboratory measurement records.
     def import_data_activity_wetlab_data(self, payload):
-        # Add this action's implementation here. Change mode only after success.
-        return self.import_data_activity_placeholder("wetlab_data")
+        return self._run_notebook_action("wetlab_data", "Loading wetlab data…")
 
     # Extension point: load spectral observation records.
     def import_data_activity_spectral_data(self, payload):
-        # Add this action's implementation here. Change mode only after success.
-        return self.import_data_activity_placeholder("spectral_data")
+        return self._run_notebook_action("spectral_data", "Loading spectral data…")
 
     # Extension point: orchestrate all data loaders in the required dependency order.
     def import_data_activity_all_data(self, payload):
-        # Add this action's implementation here. Change mode only after success.
-        return self.import_data_activity_placeholder("all_data")
+        return self._run_notebook_action("all_data", "Loading all data…")
 
     # Return a fresh permission state so the browser can update colors and click availability.
     # Call this helper only after real work succeeds; exceptions should leave the mode unchanged.
     def import_data_activity_success(self, action_id, message):
         # Each handler calls this after its real operation succeeds.
-        state = complete_import_data_action(action_id)
+        state = get_import_data_state()
         Trace.success("process", message)
         return {"implemented": True, "message": message, "state": state}

@@ -13,7 +13,10 @@ def create_app(database_path=None):
     runtime = Runtime()
     runtime.store = KeyValueRepository(database_path or Path(app.instance_path) / "workspace.sqlite3")
     token = bind(runtime)
-    try: configure()
+    try:
+        from .services.import_data_controls import recover_interrupted_actions
+        recover_interrupted_actions()
+        configure()
     finally: unbind(token)
     app.extensions["runtime"] = runtime
 

@@ -269,3 +269,11 @@ main > *, #logContent > :first-child {
 #bottomPanel:not([hidden]) {
   z-index: 101;
 }
+
+/* Notebook outcomes are independent of permission locks. */
+.import-data-card[data-status="succeeded"] .import-data-status { color: #15803d; }
+.import-data-card[data-status="failed"] .import-data-status,
+.import-data-card[data-status="interrupted"] .import-data-status { color: #b91c1c; }
+
+.import-data-activity .import-data-card[data-status="succeeded"] { filter: none; opacity: 1; }
+.import-data-activity .import-data-card[data-status="succeeded"] .import-data-icon { color: #15803d; background: #dcfce7; }

@@ -38,11 +38,32 @@ export default class ImportDataActivity extends Activity {
     } catch (error) {
       if (this.import_data_activity_active) this.onResult({message: error.message});
     }
+    this.stateRefreshTimer = setTimeout(() => this.refreshNotebookState(), 800);
+  }
+
+  // Refresh notebook-owned state even when execution started outside this UI.
+  async refreshNotebookState() {
+    try {
+      const state = await this.shell.request(`/api/activities/${this.id}/data`);
+      if (this.import_data_activity_active) {
+        if (!this.import_data_activity_busy && JSON.stringify(state) !== this.notebookStateSignature) {
+          this.host.querySelector('[data-import-result]').textContent = 'Notebook state updated.';
+        }
+        this.import_data_activity_render(state);
+      }
+    } catch (_) {
+      // Shell polling already reports connectivity errors; keep last known cards.
+    } finally {
+      if (this.import_data_activity_active) {
+        this.stateRefreshTimer = setTimeout(() => this.refreshNotebookState(), 800);
+      }
+    }
   }
 
   // Mark the view inactive before releasing inherited event listeners.
   async onEnd() {
     this.import_data_activity_active = false;
+    clearTimeout(this.stateRefreshTimer);
     await super.onEnd();
   }
 
@@ -64,6 +85,9 @@ export default class ImportDataActivity extends Activity {
   // Rebuild cards from fresh server state. data-locked controls motion; aria-disabled controls icon colors.
   // textContent is used for labels and messages rather than inserting arbitrary HTML.
   import_data_activity_render(state) {
+    const signature = JSON.stringify(state);
+    if (signature === this.notebookStateSignature) return;
+    this.notebookStateSignature = signature;
     this.host.querySelector('[data-import-mode]').textContent = `Import mode: ${state.mode_name}`;
     this.host.querySelectorAll('[data-import-section]').forEach(node => node.replaceChildren());
     for (const action of state.actions) {
@@ -71,6 +95,7 @@ export default class ImportDataActivity extends Activity {
       card.className = 'import-data-card';
       card.dataset.locked = String(!action.enabled);
       card.dataset.action = action.id;
+      card.dataset.status = action.status ?? 'not_started';
       const button = document.createElement('button');
       button.type = 'button';
       button.dataset.importAction = action.id;
@@ -89,7 +114,8 @@ export default class ImportDataActivity extends Activity {
       const status = document.createElement('p');
       status.className = 'import-data-status';
       status.id = `import-data-status-${action.id}`;
-      status.textContent = action.enabled ? 'Ready · Implementation pending' : `Locked · ${action.reason}`;
+      const labels = {succeeded: 'Completed', failed: 'Failed · Check the log', interrupted: 'Interrupted · Retry', running: 'Running…'};
+      status.textContent = labels[action.status] ?? (action.enabled ? 'Ready' : `Locked · ${action.reason}`);
       button.setAttribute('aria-describedby', status.id);
       card.append(button, description, status);
       this.host.querySelector(`[data-import-section="${action.section}"]`).append(card);

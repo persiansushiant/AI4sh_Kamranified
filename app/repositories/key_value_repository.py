@@ -5,6 +5,7 @@ import threading
 from pathlib import Path
 from cryptography.fernet import Fernet
 from sqlalchemy import create_engine
+from sqlalchemy.dialects.sqlite import insert
 from sqlalchemy.orm import sessionmaker
 from ..models.orm_base import OrmBase
 from ..models.stored_value import StoredValue
@@ -25,7 +26,7 @@ class KeyValueRepository:
         except FileExistsError:
             pass
         self.cipher = Fernet(key_path.read_bytes())
-        self.engine = create_engine("sqlite:///" + str(database_path))
+        self.engine = create_engine("sqlite:///" + str(database_path), connect_args={"timeout": 30})
         self.sessions = sessionmaker(bind=self.engine)
         # Serialize writes through this repository instance; this is not a cross-process lock.
         self.lock = threading.RLock()
@@ -58,11 +59,11 @@ class KeyValueRepository:
         # Open one transaction for all prepared records; exceptions trigger rollback.
         with self.lock, self.sessions.begin() as session:
             for key, value in encoded.items():
-                row = session.get(StoredValue, key)
-                if row is None:
-                    session.add(StoredValue(key=key, encrypted_value=value))
-                else:
-                    row.encrypted_value = value
+                statement = insert(StoredValue).values(key=key, encrypted_value=value)
+                session.execute(statement.on_conflict_do_update(
+                    index_elements=[StoredValue.key],
+                    set_={"encrypted_value": statement.excluded.encrypted_value},
+                ))
 
     @staticmethod
     # Reject blank, non-string, and oversized keys; accepted keys are not trimmed.
